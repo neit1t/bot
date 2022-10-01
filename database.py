@@ -8,7 +8,7 @@ from datetime import date
 class Database():
 
     def __init__(self) -> None:
-        self.conn = sqlite3.connect('показания test.db', check_same_thread=False)
+        self.conn = sqlite3.connect('показания.db', check_same_thread=False)
         self.cursor = self.conn.cursor()
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS показания (
             Номер INT,
