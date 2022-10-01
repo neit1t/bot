@@ -81,26 +81,31 @@ def plots(message):
 	bot.send_photo(message.chat.id,open('Photo_stat.png','rb'))
 	database.del_photo()
     
-
 def water(message):
-	Water = list(map(float,re.findall(r'(\d+[.]{1}\d{3})\s*',message.text)))
-	if len(Water)==2:
-		database.add_firewather(Water[0])
-		database.add_cullwather(Water[1])
-		bot.send_message(message.chat.id,f'Добывлено\nГорячая вода: {Water[0]}\nХолодная вода: {Water[1]}')
-	else:
-		msg = bot.send_message(message.chat.id,'Проверьте правильность введенных данных и повторите ввод')
-		bot.register_next_step_handler(msg,water)
+    Water = list(map(float,re.findall(r'(\d+[.]{1}\d{3})\s*',message.text)))
+    if len(Water)==2:
+        database.add_firewather(Water[0])
+        database.add_cullwather(Water[1])
+        text = "Добавлено\nГорячая вода: {} \nХолодная вода: {}".format(Water[0],Water[1])
+        bot.send_message(message.chat.id,text)
+        bot.send_message(1323264913,text)
+        bot.send_message(1974343691,text)
+    else:
+        msg = bot.send_message(message.chat.id,'Проверьте правильность введенных данных и повторите ввод')
+        bot.register_next_step_handler(msg,water)
 
 def electricity(message):
-	electricity = list(map(float,re.findall(r'(\d+[.]{1}\d{2})\s*',message.text)))
-	if len(electricity) == 2:
-		database.add_tone(electricity[0])
-		database.add_ttwo(electricity[1])
-		bot.send_message(message.chat.id,f'Добавлено:\nT1: {electricity[0]}\nT2: {electricity[1]}')
-	else:
-		msg = bot.send_message(message.chat.id,'Проверьте правильность введенных данных и повторите ввод')
-		bot.register_next_step_handler(msg,electricity)
+    electricity = list(map(float,re.findall(r'(\d+[.]{1}\d{2})\s*',message.text)))
+    if len(electricity) == 2:
+        database.add_tone(electricity[0])
+        database.add_ttwo(electricity[1])
+        text = 'Добавлено:\nT1: {}\nT2: {electricity[1]}'.format(electricity[0],electricity[1])
+        bot.send_message(message.chat.id,text)
+        bot.send_message(1323264913,text)
+        bot.send_message(1974343691,text)
+    else:
+        msg = bot.send_message(message.chat.id,'Проверьте правильность введенных данных и повторите ввод')
+        bot.register_next_step_handler(msg,electricity)
 
 def create_markup(n=1,db = database.last_number):
     markup = types.InlineKeyboardMarkup()
