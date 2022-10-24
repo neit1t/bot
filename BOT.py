@@ -30,16 +30,7 @@ def button_message(message):
 
 @bot.message_handler(chat_types=["private"], func=lambda msg: msg.text == "Статистика")
 def check_statistic(message):
-    mess = bot.send_message(message.chat.id, 'За какой период вы хотите статистику?',reply_markup = create_markup(2))
-    @bot.callback_query_handler(func=lambda call: True)
-    def button_callback(call):
-        if str.isnumeric(call.data):
-            statistic = database.analytics(int(call.data))
-            bot.send_message(call.message.chat.id,statistic)
-            bot.send_photo(call.message.chat.id,open('Photo_stat.png','rb'))
-            database.del_photo()
-        else:
-            bot.send_message(call.message.chat.id,call.data)
+    bot.send_message(message.chat.id, 'За какой период вы хотите статистику?',reply_markup = create_markup(2))
 
             
 @bot.message_handler(chat_types=["private"], func=lambda msg: msg.text == "Текущие показания")
@@ -50,12 +41,24 @@ def last_month(message):
 @bot.message_handler(chat_types=["private"], func=lambda msg: msg.text == "Показания за период")
 def several_month(message):
     mess = bot.send_message(message.chat.id, 'За какой период вы хотите посмотреть показания?',reply_markup = create_markup(1))
-    @bot.callback_query_handler(func=lambda call: True)
-    def button_callback(call):
-        if str.isnumeric(call.data):	
-            bot.send_message(call.message.chat.id,database.prints(int(call.data)))
+
+@bot.callback_query_handler(func=lambda call: True)
+def button_callback(call):
+    if 'p' in call.data:
+        num = call.data[:-1]
+        if str.isnumeric(num):	
+            bot.send_message(call.message.chat.id,database.prints(int(num)))
         else:
-        	bot.send_message(call.message.chat.id,call.data)
+            bot.send_message(call.message.chat.id,num)
+    elif 's' in call.data:
+        num = call.data[:-1]
+        if str.isnumeric(num):
+            statistic = database.analytics(int(num))
+            bot.send_message(call.message.chat.id,statistic)
+            bot.send_photo(call.message.chat.id,open('Photo_stat.png','rb'))
+            database.del_photo()
+        else:
+            bot.send_message(call.message.chat.id,num)
 
 
 @bot.message_handler(chat_types=["private"], func=lambda msg: msg.text == "Добавить воду")
@@ -84,9 +87,10 @@ def plots(message):
 def water(message):
     Water = list(map(float,re.findall(r'(\d+[.]{1}\d{3})\s*',message.text)))
     if len(Water)==2:
-        database.add_firewather(Water[0])
-        database.add_cullwather(Water[1])
-        text = "Добавлено\nГорячая вода: {} \nХолодная вода: {}".format(Water[0],Water[1])
+        database.add_cullwather(Water[0])
+        database.add_firewather(Water[1])
+        Water = list(map(str,Water))
+        text = f"Добавлено\nГорячая вода: {(9-len(Water[0]))*'0'+Water[0]} \nХолодная вода: {(9-len(Water[1]))*'0'+Water[1]}"
         bot.send_message(message.chat.id,text)
         bot.send_message(1323264913,text)
         bot.send_message(1974343691,text)
@@ -99,7 +103,8 @@ def electricity(message):
     if len(electricity) == 2:
         database.add_tone(electricity[0])
         database.add_ttwo(electricity[1])
-        text = 'Добавлено:\nT1: {}\nT2: {electricity[1]}'.format(electricity[0],electricity[1])
+        electricity = list(map(str,electricity))
+        text = f'Добавлено:\nT1: {(8-len(electricity[0]))*"0"+electricity[0]}\nT2: {(8-len(electricity[1]))*"0"+electricity[1]}'
         bot.send_message(message.chat.id,text)
         bot.send_message(1323264913,text)
         bot.send_message(1974343691,text)
@@ -108,6 +113,10 @@ def electricity(message):
         bot.register_next_step_handler(msg,electricity)
 
 def create_markup(n=1,db = database.last_number):
+    if n == 1:
+        stat = 'p'
+    elif n == 2:
+        stat = 's'
     markup = types.InlineKeyboardMarkup()
     line1_list_mouns = {}
     line2_list_mouns = {}
@@ -117,9 +126,9 @@ def create_markup(n=1,db = database.last_number):
         formul1 = 1+3*i
         formul2 = 2+3*i
         formul3 = 3+3*i
-        markup.row(types.InlineKeyboardButton(text = f'{f"{formul1} месяц(ев)" if formul1 <= db else f"{not_in_database}"}',callback_data=f'{formul1}' if formul1 <= db else 'Столько месяцев нет в базе данных'),
-        types.InlineKeyboardButton(text = f'{f"{formul2} месяц(ев)" if formul2 <= db else f"{not_in_database}"}',callback_data=f'{formul2}' if formul2 <= db else 'Столько месяцев нет в базе данных'),
-        types.InlineKeyboardButton(text = f'{f"{formul3} месяц(ев)" if formul3 <= db else f"{not_in_database}"}',callback_data=f'{formul3}' if formul3 <= db else 'Столько месяцев нет в базе данных'))
+        markup.row(types.InlineKeyboardButton(text = f'{f"{formul1} месяц(ев)" if formul1 <= db else f"{not_in_database}"}',callback_data=f'{formul1}'+stat if formul1 <= db else 'Столько месяцев нет в базе данных'),
+        types.InlineKeyboardButton(text = f'{f"{formul2} месяц(ев)" if formul2 <= db else f"{not_in_database}"}',callback_data=f'{formul2}'+stat if formul2 <= db else 'Столько месяцев нет в базе данных'),
+        types.InlineKeyboardButton(text = f'{f"{formul3} месяц(ев)" if formul3 <= db else f"{not_in_database}"}',callback_data=f'{formul3}'+stat if formul3 <= db else 'Столько месяцев нет в базе данных'))
     return markup
 
 def main():
