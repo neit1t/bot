@@ -126,9 +126,9 @@ def create_markup(n=1,db = database.last_number):
         formul1 = 1+3*i
         formul2 = 2+3*i
         formul3 = 3+3*i
-        markup.row(types.InlineKeyboardButton(text = f'{f"{formul1} месяц(ев)" if formul1 <= db else f"{not_in_database}"}',callback_data=f'{formul1}'+stat if formul1 <= db else 'Столько месяцев нет в базе данных'),
-        types.InlineKeyboardButton(text = f'{f"{formul2} месяц(ев)" if formul2 <= db else f"{not_in_database}"}',callback_data=f'{formul2}'+stat if formul2 <= db else 'Столько месяцев нет в базе данных'),
-        types.InlineKeyboardButton(text = f'{f"{formul3} месяц(ев)" if formul3 <= db else f"{not_in_database}"}',callback_data=f'{formul3}'+stat if formul3 <= db else 'Столько месяцев нет в базе данных'))
+        markup.row(types.InlineKeyboardButton(text = f'{f"{formul1} месяц(ев)" if formul1 <= db//n else f"{not_in_database}"}',callback_data=f'{formul1}'+stat if formul1 <= db//n else 'Столько месяцев нет в базе данных'),
+        types.InlineKeyboardButton(text = f'{f"{formul2} месяц(ев)" if formul2 <= db//n else f"{not_in_database}"}',callback_data=f'{formul2}'+stat if formul2 <= db//n else 'Столько месяцев нет в базе данных'),
+        types.InlineKeyboardButton(text = f'{f"{formul3} месяц(ев)" if formul3 <= db//n else f"{not_in_database}"}',callback_data=f'{formul3}'+stat if formul3 <= db//n else 'Столько месяцев нет в базе данных'))
     return markup
 
 def main():
